@@ -16,11 +16,11 @@ input {
   padding: 10px;
   width: 300px;
   border-radius: 8px;
-  border: 1px solid #ccc;
 }
 
 button {
   padding: 10px 20px;
+  margin: 5px;
   border: none;
   background: #1e5f8c;
   color: white;
@@ -28,11 +28,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #4aa3df;
-}
-
-#qrcode {
+canvas {
   margin-top: 20px;
 }
 </style>
@@ -44,24 +40,39 @@ button:hover {
 
 <input type="text" id="text" placeholder="Link eingeben...">
 <br><br>
+
 <button onclick="generateQR()">Generieren</button>
+<button onclick="downloadQR()">Download</button>
+<button onclick="copyQR()">Kopieren</button>
 
-<div id="qrcode"></div>
+<br>
+<canvas id="canvas"></canvas>
 
-<!-- QR Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
 
 <script>
+let canvas = document.getElementById("canvas");
+
 function generateQR() {
   let text = document.getElementById("text").value;
-  let qrcodeDiv = document.getElementById("qrcode");
 
-  qrcodeDiv.innerHTML = ""; // alten löschen
+  QRCode.toCanvas(canvas, text, function (error) {
+    if (error) console.error(error);
+  });
+}
 
-  new QRCode(qrcodeDiv, {
-    text: text,
-    width: 200,
-    height: 200
+function downloadQR() {
+  let link = document.createElement('a');
+  link.download = 'qrcode.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+function copyQR() {
+  canvas.toBlob(function(blob) {
+    const item = new ClipboardItem({ "image/png": blob });
+    navigator.clipboard.write([item]);
+    alert("QR-Code kopiert!");
   });
 }
 </script>
